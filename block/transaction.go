@@ -17,11 +17,12 @@ type Transaction struct {
 
 	TransactionType libblock.TransactionType
 
-	Account     libcore.Address
-	Sequence    uint64
-	Amount      int64
-	Gas         int64
-	Name        string
+	Account  libcore.Address
+	Sequence uint64
+	Amount   int64
+	Gas      int64
+	Name     string
+	//Value		libcore.Bytes
 	Type        int64
 	Destination libcore.Address
 	Payload     libcore.Bytes
