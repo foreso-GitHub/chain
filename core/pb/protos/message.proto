@@ -28,9 +28,9 @@ message Transaction {
     bytes Signature     = 9;
 
     int64 Timestamp     = 10;
-    repeated bytes Tags = 11;
-    bytes Name          = 12;
-    bytes Value         = 13;
+    repeated string Tags = 11;
+    string Name          = 12;
+    string Value         = 13;
 }
 
 message Receipt {

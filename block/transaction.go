@@ -22,9 +22,9 @@ type Transaction struct {
 	Amount      int64
 	Gas         int64
 	Timestamp   int64
-	Tags        [][]byte
-	Name        libcore.Bytes
-	Value       libcore.Bytes
+	Tags        []string
+	Name        string
+	Value       string
 	Destination libcore.Address
 	Payload     libcore.Bytes
 	PublicKey   libcore.PublicKey
