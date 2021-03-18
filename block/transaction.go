@@ -17,13 +17,14 @@ type Transaction struct {
 
 	TransactionType libblock.TransactionType
 
-	Account  libcore.Address
-	Sequence uint64
-	Amount   int64
-	Gas      int64
-	Name     string
-	//Value		libcore.Bytes
-	Type        int64
+	Account     libcore.Address
+	Sequence    uint64
+	Amount      int64
+	Gas         int64
+	Timestamp   int64
+	Tags        [][]byte
+	Name        libcore.Bytes
+	Value       libcore.Bytes
 	Destination libcore.Address
 	Payload     libcore.Bytes
 	PublicKey   libcore.PublicKey
@@ -73,8 +74,10 @@ func (tx *Transaction) UnmarshalBinary(data []byte) error {
 	tx.Sequence = t.Sequence
 	tx.Amount = t.Amount
 	tx.Gas = t.Gas
+	tx.Timestamp = t.Timestamp
+	tx.Tags = t.Tags
 	tx.Name = t.Name
-	tx.Type = t.Type
+	tx.Value = t.Value
 
 	tx.Destination, err = byteToAddress(t.Destination)
 	if err != nil {
@@ -109,8 +112,10 @@ func (tx *Transaction) MarshalBinary() ([]byte, error) {
 		Sequence:    tx.Sequence,
 		Amount:      tx.Amount,
 		Gas:         tx.Gas,
+		Timestamp:   tx.Timestamp,
+		Tags:        tx.Tags,
 		Name:        tx.Name,
-		Type:        tx.Type,
+		Value:       tx.Value,
 		Destination: toData,
 		Payload:     tx.Payload,
 		PublicKey:   []byte(tx.PublicKey),
@@ -137,8 +142,10 @@ func (tx *Transaction) Raw(ignoreSigningFields bool) ([]byte, error) {
 			Sequence:    tx.Sequence,
 			Amount:      tx.Amount,
 			Gas:         tx.Gas,
+			Timestamp:   tx.Timestamp,
+			Tags:        tx.Tags,
 			Name:        tx.Name,
-			Type:        tx.Type,
+			Value:       tx.Value,
 			Destination: toData,
 			Payload:     tx.Payload,
 			PublicKey:   []byte(tx.PublicKey),
