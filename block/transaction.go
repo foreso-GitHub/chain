@@ -21,6 +21,8 @@ type Transaction struct {
 	Sequence    uint64
 	Amount      int64
 	Gas         int64
+	Name        string
+	Type        int64
 	Destination libcore.Address
 	Payload     libcore.Bytes
 	PublicKey   libcore.PublicKey
@@ -70,6 +72,8 @@ func (tx *Transaction) UnmarshalBinary(data []byte) error {
 	tx.Sequence = t.Sequence
 	tx.Amount = t.Amount
 	tx.Gas = t.Gas
+	tx.Name = t.Name
+	tx.Type = t.Type
 
 	tx.Destination, err = byteToAddress(t.Destination)
 	if err != nil {
@@ -104,6 +108,8 @@ func (tx *Transaction) MarshalBinary() ([]byte, error) {
 		Sequence:    tx.Sequence,
 		Amount:      tx.Amount,
 		Gas:         tx.Gas,
+		Name:        tx.Name,
+		Type:        tx.Type,
 		Destination: toData,
 		Payload:     tx.Payload,
 		PublicKey:   []byte(tx.PublicKey),
@@ -130,6 +136,8 @@ func (tx *Transaction) Raw(ignoreSigningFields bool) ([]byte, error) {
 			Sequence:    tx.Sequence,
 			Amount:      tx.Amount,
 			Gas:         tx.Gas,
+			Name:        tx.Name,
+			Type:        tx.Type,
 			Destination: toData,
 			Payload:     tx.Payload,
 			PublicKey:   []byte(tx.PublicKey),

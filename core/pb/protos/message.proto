@@ -26,6 +26,9 @@ message Transaction {
 
     bytes PublicKey     = 8;
     bytes Signature     = 9;
+
+    string Name         = 10;
+    int64 Type          = 11;
 }
 
 message Receipt {
