@@ -32,6 +32,10 @@ message Transaction {
     string Name          = 12;
     string Value         = 13;
     string Device        = 14;
+    string Type          = 15;
+    string Symbol        = 16;
+    string Description   = 17;
+    repeated string DeviceTags = 18;
 }
 
 message Receipt {
@@ -61,6 +65,18 @@ message CurrencyState {
 	string Symbol       = 6; 
 	uint32 Decimals     = 7;
 	int64 TotalSupply   = 8;
+}
+
+message DeviceState {
+    uint32 StateType    = 1;
+    uint64 BlockIndex   = 2;
+
+    bytes Account       = 3;
+    uint64 Sequence     = 4;
+
+	string Symbol         = 5;
+	string Description    = 6;
+	repeated string Tags  = 7;
 }
 
 message TransactionWithData {

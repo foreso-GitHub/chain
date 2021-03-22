@@ -195,6 +195,85 @@ func (s *CurrencyState) Raw(ignoreSigningFields bool) ([]byte, error) {
 	})
 }
 
+type DeviceState struct {
+	State
+
+	Account  libcore.Address
+	Sequence uint64
+
+	Symbol      string
+	Description string
+	Tags        []string
+}
+
+func (s *DeviceState) GetIndex() uint64 {
+	return s.Sequence
+}
+
+func (s *DeviceState) GetStateKey() string {
+	return s.Symbol
+}
+
+func (s *DeviceState) UnmarshalBinary(data []byte) error {
+	meta, msg, err := core.Unmarshal(data)
+	if err != nil {
+		return err
+	}
+	if meta != core.CORE_DEVICE_STATE {
+		return errors.New("error state data")
+	}
+	state := msg.(*pb.DeviceState)
+
+	issuer := account.NewAddress()
+	err = issuer.UnmarshalBinary(state.Account)
+	if err != nil {
+		return err
+	}
+
+	s.StateType = libblock.StateType(core.CORE_DEVICE_STATE)
+	s.BlockIndex = state.BlockIndex
+	s.Account = issuer
+	s.Sequence = state.Sequence
+	s.Symbol = state.Symbol
+	s.Description = state.Description
+	s.Tags = state.Tags
+
+	return nil
+}
+
+func (s *DeviceState) MarshalBinary() ([]byte, error) {
+	issuer, err := s.Account.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	return core.Marshal(&pb.DeviceState{
+		StateType:   uint32(core.CORE_DEVICE_STATE),
+		BlockIndex:  s.BlockIndex,
+		Account:     issuer,
+		Sequence:    s.Sequence,
+		Symbol:      s.Symbol,
+		Description: s.Description,
+		Tags:        s.Tags,
+	})
+}
+
+func (s *DeviceState) Raw(ignoreSigningFields bool) ([]byte, error) {
+	issuer, err := s.Account.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	return core.Marshal(&pb.DeviceState{
+		StateType:   uint32(core.CORE_DEVICE_STATE),
+		Account:     issuer,
+		Sequence:    s.Sequence,
+		Symbol:      s.Symbol,
+		Description: s.Description,
+		Tags:        s.Tags,
+	})
+}
+
 func ReadState(data []byte) (libblock.State, error) {
 	if len(data) == 0 {
 		return nil, errors.New("error entry")
@@ -210,6 +289,13 @@ func ReadState(data []byte) (libblock.State, error) {
 		return s, nil
 	case core.CORE_CURRENCY_STATE:
 		s := &CurrencyState{}
+		err := s.UnmarshalBinary(data)
+		if err != nil {
+			return nil, err
+		}
+		return s, nil
+	case core.CORE_DEVICE_STATE:
+		s := &DeviceState{}
 		err := s.UnmarshalBinary(data)
 		if err != nil {
 			return nil, err

@@ -18,6 +18,11 @@ const (
 	// CORE_STATE         = byte(110)
 	CORE_ACCOUNT_STATE  = byte(111)
 	CORE_CURRENCY_STATE = byte(112)
+	CORE_DEVICE_STATE   = byte(113)
+
+	CORE_PAYMENT_TYPE      = byte(201)
+	CORE_NEW_CURRENCY_TYPE = byte(202)
+	CORE_NEW_DEVICE_TYPE   = byte(203)
 )
 
 func GetInfo(data []byte) string {
@@ -37,6 +42,16 @@ func GetInfo(data []byte) string {
 			return "account_state"
 		case CORE_CURRENCY_STATE:
 			return "currency_state"
+		case CORE_DEVICE_STATE:
+			return "device_state"
+
+		case CORE_PAYMENT_TYPE:
+			return "payment_type"
+		case CORE_NEW_CURRENCY_TYPE:
+			return "new_currency_type"
+		case CORE_NEW_DEVICE_TYPE:
+			return "new_device_type"
+
 		default:
 			return "unknown"
 		}
@@ -72,6 +87,8 @@ func Marshal(message proto.Message) ([]byte, error) {
 		meta = CORE_ACCOUNT_STATE
 	case *pb.CurrencyState:
 		meta = CORE_CURRENCY_STATE
+	case *pb.DeviceState:
+		meta = CORE_DEVICE_STATE
 
 	default:
 		err := errors.New("error data type")
@@ -103,6 +120,8 @@ func Unmarshal(data []byte) (byte, proto.Message, error) {
 		msg = &pb.AccountState{}
 	case CORE_CURRENCY_STATE:
 		msg = &pb.CurrencyState{}
+	case CORE_DEVICE_STATE:
+		msg = &pb.DeviceState{}
 
 	default:
 		err := errors.New("error data format")
