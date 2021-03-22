@@ -25,6 +25,7 @@ type Transaction struct {
 	Tags        []string
 	Name        string
 	Value       string
+	Device      string
 	Destination libcore.Address
 	Payload     libcore.Bytes
 	PublicKey   libcore.PublicKey
@@ -78,6 +79,7 @@ func (tx *Transaction) UnmarshalBinary(data []byte) error {
 	tx.Tags = t.Tags
 	tx.Name = t.Name
 	tx.Value = t.Value
+	tx.Device = t.Device
 
 	tx.Destination, err = byteToAddress(t.Destination)
 	if err != nil {
@@ -116,6 +118,7 @@ func (tx *Transaction) MarshalBinary() ([]byte, error) {
 		Tags:        tx.Tags,
 		Name:        tx.Name,
 		Value:       tx.Value,
+		Device:      tx.Device,
 		Destination: toData,
 		Payload:     tx.Payload,
 		PublicKey:   []byte(tx.PublicKey),
@@ -146,6 +149,7 @@ func (tx *Transaction) Raw(ignoreSigningFields bool) ([]byte, error) {
 			Tags:        tx.Tags,
 			Name:        tx.Name,
 			Value:       tx.Value,
+			Device:      tx.Device,
 			Destination: toData,
 			Payload:     tx.Payload,
 			PublicKey:   []byte(tx.PublicKey),

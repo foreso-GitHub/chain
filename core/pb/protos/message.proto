@@ -31,6 +31,7 @@ message Transaction {
     repeated string Tags = 11;
     string Name          = 12;
     string Value         = 13;
+    string Device        = 14;
 }
 
 message Receipt {
