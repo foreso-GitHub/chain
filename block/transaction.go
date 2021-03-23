@@ -224,6 +224,8 @@ type TransactionWithData struct {
 
 	Transaction libblock.Transaction
 	Receipt     libblock.Receipt
+	Payment     libblock.Transaction
+	NewDevice   libblock.Transaction
 }
 
 func (txWithData *TransactionWithData) GetHash() libcore.Hash {
@@ -256,8 +258,28 @@ func (txWithData *TransactionWithData) UnmarshalBinary(data []byte) error {
 	}
 	tx := &Transaction{}
 	err = tx.UnmarshalBinary(txData)
+	if err == nil {
+		txWithData.Transaction = tx
+	}
+
+	paymentData, err := core.Marshal(td.Payment)
 	if err != nil {
 		return err
+	}
+	payment := &Payment{}
+	err = tx.UnmarshalBinary(paymentData)
+	if err == nil {
+		txWithData.Payment = payment
+	}
+
+	deviceData, err := core.Marshal(td.NewDevice)
+	if err != nil {
+		return err
+	}
+	device := &NewDevice{}
+	err = tx.UnmarshalBinary(deviceData)
+	if err == nil {
+		txWithData.NewDevice = device
 	}
 
 	receiptData, err := core.Marshal(td.Receipt)
@@ -272,76 +294,157 @@ func (txWithData *TransactionWithData) UnmarshalBinary(data []byte) error {
 		return err
 	}
 
-	txWithData.Transaction = tx
 	txWithData.Receipt = receipt
 	return nil
 }
 
 func (txWithData *TransactionWithData) MarshalBinary() ([]byte, error) {
-	txData, err := txWithData.Transaction.MarshalBinary()
-	if err != nil {
-		return nil, err
-	}
-	_, msg, err := core.Unmarshal(txData)
-	if err != nil {
-		return nil, err
-	}
-
-	//tx := msg.(*pb.Transaction)
-	tx := msg.(*pb.Payment)
 
 	receiptData, err := txWithData.Receipt.MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
-	_, msg, err = core.Unmarshal(receiptData)
+	_, msg, err := core.Unmarshal(receiptData)
 	if err != nil {
 		return nil, err
 	}
 	receipt := msg.(*pb.Receipt)
 
-	td := &pb.TransactionWithData{
-		Transaction: tx,
-		Receipt:     receipt,
-	}
-	data, err := core.Marshal(td)
+	txData, err := txWithData.Transaction.MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
-	return data, nil
+	meta, msg, err := core.Unmarshal(txData)
+	if err != nil {
+		return nil, err
+	}
+
+	//tx := msg.(*pb.Transaction)
+	//tx := msg.(*pb.Payment)
+
+	switch meta {
+	case core.CORE_TRANSACTION:
+		tx := msg.(*pb.Transaction)
+
+		td := &pb.TransactionWithData{
+			Transaction: tx,
+			Receipt:     receipt,
+		}
+		data, err := core.Marshal(td)
+		if err != nil {
+			return nil, err
+		}
+		return data, nil
+	case core.CORE_PAYMENT:
+		payment := msg.(*pb.Payment)
+		td := &pb.TransactionWithData{
+			Payment: payment,
+			Receipt: receipt,
+		}
+		data, err := core.Marshal(td)
+		if err != nil {
+			return nil, err
+		}
+		return data, nil
+	case core.CORE_NEWDEVICE:
+		newDevice := msg.(*pb.NewDevice)
+		td := &pb.TransactionWithData{
+			NewDevice: newDevice,
+			Receipt:   receipt,
+		}
+		data, err := core.Marshal(td)
+		if err != nil {
+			return nil, err
+		}
+		return data, nil
+	default:
+		err := errors.New("error TransactionWithData meta")
+		return nil, err
+	}
+
+	//td := &pb.TransactionWithData{
+	//	Transaction: tx,
+	//	Receipt:     receipt,
+	//}
+	//data, err := core.Marshal(td)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//return data, nil
 }
 
 func (txWithData *TransactionWithData) Raw(ignoreSigningFields bool) ([]byte, error) {
-	txData, err := txWithData.Transaction.Raw(ignoreSigningFields)
-	if err != nil {
-		return nil, err
-	}
-	_, msg, err := core.Unmarshal(txData)
-	if err != nil {
-		return nil, err
-	}
-	//tx := msg.(*pb.Transaction)
-	tx := msg.(*pb.Payment)
 
 	receiptData, err := txWithData.Receipt.Raw(ignoreSigningFields)
 	if err != nil {
 		return nil, err
 	}
-	_, msg, err = core.Unmarshal(receiptData)
+	_, msg, err := core.Unmarshal(receiptData)
 	if err != nil {
 		return nil, err
 	}
 	receipt := msg.(*pb.Receipt)
 
-	td := &pb.TransactionWithData{
-		Transaction: tx,
-		Receipt:     receipt,
-	}
-	data, err := core.Marshal(td)
+	txData, err := txWithData.Transaction.Raw(ignoreSigningFields)
 	if err != nil {
 		return nil, err
 	}
-	return data, nil
+	meta, msg, err := core.Unmarshal(txData)
+	if err != nil {
+		return nil, err
+	}
+	//tx := msg.(*pb.Transaction)
+	//tx := msg.(*pb.Payment)
+
+	switch meta {
+	case core.CORE_TRANSACTION:
+		tx := msg.(*pb.Transaction)
+
+		td := &pb.TransactionWithData{
+			Transaction: tx,
+			Receipt:     receipt,
+		}
+		data, err := core.Marshal(td)
+		if err != nil {
+			return nil, err
+		}
+		return data, nil
+	case core.CORE_PAYMENT:
+		payment := msg.(*pb.Payment)
+		td := &pb.TransactionWithData{
+			Payment: payment,
+			Receipt: receipt,
+		}
+		data, err := core.Marshal(td)
+		if err != nil {
+			return nil, err
+		}
+		return data, nil
+	case core.CORE_NEWDEVICE:
+		newDevice := msg.(*pb.NewDevice)
+		td := &pb.TransactionWithData{
+			NewDevice: newDevice,
+			Receipt:   receipt,
+		}
+		data, err := core.Marshal(td)
+		if err != nil {
+			return nil, err
+		}
+		return data, nil
+	default:
+		err := errors.New("error TransactionWithData meta")
+		return nil, err
+	}
+
+	//td := &pb.TransactionWithData{
+	//	Transaction: tx,
+	//	Receipt:     receipt,
+	//}
+	//data, err := core.Marshal(td)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//return data, nil
 }
 
 //endregion

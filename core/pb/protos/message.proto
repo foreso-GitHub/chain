@@ -114,6 +114,8 @@ message DeviceState {
 }
 
 message TransactionWithData {
-    Payment Transaction   = 1;
+    Transaction Transaction   = 1;
     Receipt Receipt           = 2;
+    Payment Payment           = 3;
+    NewDevice NewDevice       = 4;
 }
