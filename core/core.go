@@ -14,6 +14,8 @@ const (
 	CORE_TRANSACTION           = byte(101)
 	CORE_RECEIPT               = byte(102)
 	CORE_TRANSACTION_WITH_DATA = byte(103)
+	CORE_PAYMENT               = byte(104)
+	CORE_NEWDEVICE             = byte(105)
 
 	// CORE_STATE         = byte(110)
 	CORE_ACCOUNT_STATE  = byte(111)
@@ -33,6 +35,10 @@ func GetInfo(data []byte) string {
 			return "block"
 		case CORE_TRANSACTION:
 			return "transaction"
+		case CORE_PAYMENT:
+			return "payment"
+		case CORE_NEWDEVICE:
+			return "new_device"
 		case CORE_RECEIPT:
 			return "receipt"
 		case CORE_TRANSACTION_WITH_DATA:
@@ -78,6 +84,10 @@ func Marshal(message proto.Message) ([]byte, error) {
 		meta = CORE_BLOCK
 	case *pb.Transaction:
 		meta = CORE_TRANSACTION
+	case *pb.Payment:
+		meta = CORE_PAYMENT
+	case *pb.NewDevice:
+		meta = CORE_NEWDEVICE
 	case *pb.Receipt:
 		meta = CORE_RECEIPT
 	case *pb.TransactionWithData:
@@ -111,6 +121,10 @@ func Unmarshal(data []byte) (byte, proto.Message, error) {
 		msg = &pb.Block{}
 	case CORE_TRANSACTION:
 		msg = &pb.Transaction{}
+	case CORE_PAYMENT:
+		msg = &pb.Payment{}
+	case CORE_NEWDEVICE:
+		msg = &pb.NewDevice{}
 	case CORE_RECEIPT:
 		msg = &pb.Receipt{}
 	case CORE_TRANSACTION_WITH_DATA:

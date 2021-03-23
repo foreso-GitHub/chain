@@ -17,19 +17,22 @@ type Transaction struct {
 
 	TransactionType libblock.TransactionType
 
-	Account     libcore.Address
-	Sequence    uint64
-	Amount      int64
-	Gas         int64
-	Timestamp   int64
-	Tags        []string
-	Name        string
-	Value       string
-	Device      string
-	Type        string
-	Symbol      string
-	Description string
-	DeviceTags  []string
+	Account  libcore.Address
+	Sequence uint64
+	Amount   int64
+	Gas      int64
+	Type     string
+
+	//Timestamp   int64
+	//Tags        []string
+	//Name        string
+	//Value       string
+	//Device      string
+
+	//Symbol      string
+	//Description string
+	//DeviceTags  []string
+
 	Destination libcore.Address
 	Payload     libcore.Bytes
 	PublicKey   libcore.PublicKey
@@ -79,15 +82,7 @@ func (tx *Transaction) UnmarshalBinary(data []byte) error {
 	tx.Sequence = t.Sequence
 	tx.Amount = t.Amount
 	tx.Gas = t.Gas
-	tx.Timestamp = t.Timestamp
-	tx.Tags = t.Tags
-	tx.Name = t.Name
-	tx.Value = t.Value
-	tx.Device = t.Device
 	tx.Type = t.Type
-	tx.Symbol = t.Symbol
-	tx.Description = t.Description
-	tx.DeviceTags = t.DeviceTags
 
 	tx.Destination, err = byteToAddress(t.Destination)
 	if err != nil {
@@ -122,15 +117,7 @@ func (tx *Transaction) MarshalBinary() ([]byte, error) {
 		Sequence:    tx.Sequence,
 		Amount:      tx.Amount,
 		Gas:         tx.Gas,
-		Timestamp:   tx.Timestamp,
-		Tags:        tx.Tags,
-		Name:        tx.Name,
-		Value:       tx.Value,
-		Device:      tx.Device,
 		Type:        tx.Type,
-		Symbol:      tx.Symbol,
-		Description: tx.Description,
-		DeviceTags:  tx.DeviceTags,
 		Destination: toData,
 		Payload:     tx.Payload,
 		PublicKey:   []byte(tx.PublicKey),
@@ -157,15 +144,7 @@ func (tx *Transaction) Raw(ignoreSigningFields bool) ([]byte, error) {
 			Sequence:    tx.Sequence,
 			Amount:      tx.Amount,
 			Gas:         tx.Gas,
-			Timestamp:   tx.Timestamp,
-			Tags:        tx.Tags,
-			Name:        tx.Name,
-			Value:       tx.Value,
-			Device:      tx.Device,
 			Type:        tx.Type,
-			Symbol:      tx.Symbol,
-			Description: tx.Description,
-			DeviceTags:  tx.DeviceTags,
 			Destination: toData,
 			Payload:     tx.Payload,
 			PublicKey:   []byte(tx.PublicKey),
@@ -198,6 +177,47 @@ func (tx *Transaction) GetSignature() libcore.Signature {
 func (tx *Transaction) SetSignature(s libcore.Signature) {
 	tx.Signature = s
 }
+
+//region BaseTx
+
+//type BaseTx interface {
+//	libblock.Transaction
+//
+//	getAccount()		libcore.Address
+//	getDistination()	libcore.Address
+//	getSequence()		uint64
+//	getAmount()			int64
+//	getGas()			int64
+//	getType()			string
+//}
+
+//func (tx *Transaction) GetAccount() libcore.Address {
+//	return tx.Account
+//}
+
+func (tx *Transaction) GetDestination() libcore.Address {
+	return tx.Destination
+}
+
+func (tx *Transaction) GetSequence() uint64 {
+	return tx.Sequence
+}
+
+func (tx *Transaction) GetAmount() int64 {
+	return tx.Amount
+}
+
+func (tx *Transaction) GetGas() int64 {
+	return tx.Gas
+}
+
+func (tx *Transaction) GetType() string {
+	return tx.Type
+}
+
+//endregion
+
+//region TransactionWithData
 
 type TransactionWithData struct {
 	Hash libcore.Hash
@@ -266,7 +286,9 @@ func (txWithData *TransactionWithData) MarshalBinary() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	tx := msg.(*pb.Transaction)
+
+	//tx := msg.(*pb.Transaction)
+	tx := msg.(*pb.Payment)
 
 	receiptData, err := txWithData.Receipt.MarshalBinary()
 	if err != nil {
@@ -298,7 +320,8 @@ func (txWithData *TransactionWithData) Raw(ignoreSigningFields bool) ([]byte, er
 	if err != nil {
 		return nil, err
 	}
-	tx := msg.(*pb.Transaction)
+	//tx := msg.(*pb.Transaction)
+	tx := msg.(*pb.Payment)
 
 	receiptData, err := txWithData.Receipt.Raw(ignoreSigningFields)
 	if err != nil {
@@ -320,3 +343,235 @@ func (txWithData *TransactionWithData) Raw(ignoreSigningFields bool) ([]byte, er
 	}
 	return data, nil
 }
+
+//endregion
+
+//region Payment
+
+type Payment struct {
+	Transaction
+
+	Timestamp int64
+	Device    string
+	Tags      []string
+	Name      string
+	Value     string
+}
+
+func (tx *Payment) UnmarshalBinary(data []byte) error {
+	var err error
+
+	meta, msg, err := core.Unmarshal(data)
+	if err != nil {
+		return err
+	}
+	if meta != core.CORE_PAYMENT {
+		return errors.New("error transaction payment data")
+	}
+	t := msg.(*pb.Payment)
+
+	tx.TransactionType = libblock.TransactionType(t.TransactionType)
+
+	tx.Account, err = byteToAddress(t.Account)
+	if err != nil {
+		return err
+	}
+
+	tx.Sequence = t.Sequence
+	tx.Amount = t.Amount
+	tx.Gas = t.Gas
+	tx.Type = t.Type
+	tx.Timestamp = t.Timestamp
+	tx.Tags = t.Tags
+	tx.Name = t.Name
+	tx.Value = t.Value
+	tx.Device = t.Device
+
+	tx.Destination, err = byteToAddress(t.Destination)
+	if err != nil {
+		return err
+	}
+
+	tx.Payload = t.Payload
+	tx.PublicKey = libcore.PublicKey(t.PublicKey)
+	tx.Signature = libcore.Signature(t.Signature)
+
+	return nil
+}
+
+func (tx *Payment) MarshalBinary() ([]byte, error) {
+	fromData, err := addressToByte(tx.Account)
+	if err != nil {
+		return nil, err
+	}
+	toData, err := addressToByte(tx.Destination)
+	if err != nil {
+		return nil, err
+	}
+
+	t := &pb.Payment{
+		TransactionType: uint32(tx.TransactionType),
+
+		Account:     fromData,
+		Sequence:    tx.Sequence,
+		Amount:      tx.Amount,
+		Gas:         tx.Gas,
+		Timestamp:   tx.Timestamp,
+		Tags:        tx.Tags,
+		Name:        tx.Name,
+		Value:       tx.Value,
+		Device:      tx.Device,
+		Type:        tx.Type,
+		Destination: toData,
+		Payload:     tx.Payload,
+		PublicKey:   []byte(tx.PublicKey),
+		Signature:   []byte(tx.Signature),
+	}
+	return core.Marshal(t)
+}
+
+func (tx *Payment) Raw(ignoreSigningFields bool) ([]byte, error) {
+	fromData, err := addressToByte(tx.Account)
+	if err != nil {
+		return nil, err
+	}
+	toData, err := addressToByte(tx.Destination)
+	if err != nil {
+		return nil, err
+	}
+
+	if ignoreSigningFields {
+		t := &pb.Payment{
+			TransactionType: uint32(tx.TransactionType),
+
+			Account:     fromData,
+			Sequence:    tx.Sequence,
+			Amount:      tx.Amount,
+			Gas:         tx.Gas,
+			Timestamp:   tx.Timestamp,
+			Tags:        tx.Tags,
+			Name:        tx.Name,
+			Value:       tx.Value,
+			Device:      tx.Device,
+			Type:        tx.Type,
+			Destination: toData,
+			Payload:     tx.Payload,
+			PublicKey:   []byte(tx.PublicKey),
+		}
+		return core.Marshal(t)
+	}
+	return tx.MarshalBinary()
+}
+
+//endregion
+
+//region NewDevice
+
+type NewDevice struct {
+	Transaction
+
+	Symbol      string
+	Description string
+	DeviceTags  []string
+}
+
+func (tx *NewDevice) UnmarshalBinary(data []byte) error {
+	var err error
+
+	meta, msg, err := core.Unmarshal(data)
+	if err != nil {
+		return err
+	}
+	if meta != core.CORE_NEWDEVICE {
+		return errors.New("error transaction new device data")
+	}
+	t := msg.(*pb.NewDevice)
+
+	tx.TransactionType = libblock.TransactionType(t.TransactionType)
+
+	tx.Account, err = byteToAddress(t.Account)
+	if err != nil {
+		return err
+	}
+
+	tx.Sequence = t.Sequence
+	tx.Amount = t.Amount
+	tx.Gas = t.Gas
+	tx.Type = t.Type
+	tx.Symbol = t.Symbol
+	tx.Description = t.Description
+	tx.DeviceTags = t.DeviceTags
+
+	tx.Destination, err = byteToAddress(t.Destination)
+	if err != nil {
+		return err
+	}
+
+	tx.Payload = t.Payload
+	tx.PublicKey = libcore.PublicKey(t.PublicKey)
+	tx.Signature = libcore.Signature(t.Signature)
+
+	return nil
+}
+
+func (tx *NewDevice) MarshalBinary() ([]byte, error) {
+	fromData, err := addressToByte(tx.Account)
+	if err != nil {
+		return nil, err
+	}
+	toData, err := addressToByte(tx.Destination)
+	if err != nil {
+		return nil, err
+	}
+
+	t := &pb.NewDevice{
+		TransactionType: uint32(tx.TransactionType),
+
+		Account:     fromData,
+		Sequence:    tx.Sequence,
+		Amount:      tx.Amount,
+		Gas:         tx.Gas,
+		Type:        tx.Type,
+		Symbol:      tx.Symbol,
+		Description: tx.Description,
+		DeviceTags:  tx.DeviceTags,
+		Destination: toData,
+		Payload:     tx.Payload,
+		PublicKey:   []byte(tx.PublicKey),
+		Signature:   []byte(tx.Signature),
+	}
+	return core.Marshal(t)
+}
+
+func (tx *NewDevice) Raw(ignoreSigningFields bool) ([]byte, error) {
+	fromData, err := addressToByte(tx.Account)
+	if err != nil {
+		return nil, err
+	}
+	toData, err := addressToByte(tx.Destination)
+	if err != nil {
+		return nil, err
+	}
+
+	if ignoreSigningFields {
+		t := &pb.NewDevice{
+			TransactionType: uint32(tx.TransactionType),
+
+			Account:     fromData,
+			Sequence:    tx.Sequence,
+			Amount:      tx.Amount,
+			Gas:         tx.Gas,
+			Type:        tx.Type,
+			Symbol:      tx.Symbol,
+			Description: tx.Description,
+			DeviceTags:  tx.DeviceTags,
+			Destination: toData,
+			Payload:     tx.Payload,
+			PublicKey:   []byte(tx.PublicKey),
+		}
+		return core.Marshal(t)
+	}
+	return tx.MarshalBinary()
+}
+
+//endregion

@@ -27,15 +27,49 @@ message Transaction {
     bytes PublicKey     = 8;
     bytes Signature     = 9;
 
-    int64 Timestamp     = 10;
-    repeated string Tags = 11;
-    string Name          = 12;
-    string Value         = 13;
-    string Device        = 14;
-    string Type          = 15;
-    string Symbol        = 16;
-    string Description   = 17;
-    repeated string DeviceTags = 18;
+    string Type          = 10;
+}
+
+message Payment {
+    uint32 TransactionType         = 1;
+
+    bytes Account       = 2;
+    uint64 Sequence     = 3;
+    int64 Amount       = 4;
+    int64 Gas          = 5;
+    bytes Destination   = 6;
+    bytes Payload       = 7;
+
+    bytes PublicKey     = 8;
+    bytes Signature     = 9;
+
+    string Type          = 10;
+
+    int64 Timestamp     = 11;
+    string Device        = 12;
+    repeated string Tags = 13;
+    string Name          = 14;
+    string Value         = 15;
+}
+
+message NewDevice {
+    uint32 TransactionType         = 1;
+
+    bytes Account       = 2;
+    uint64 Sequence     = 3;
+    int64 Amount       = 4;
+    int64 Gas          = 5;
+    bytes Destination   = 6;
+    bytes Payload       = 7;
+
+    bytes PublicKey     = 8;
+    bytes Signature     = 9;
+
+    string Type          = 10;
+
+    string Symbol        = 11;
+    string Description   = 12;
+    repeated string DeviceTags = 13;
 }
 
 message Receipt {
@@ -80,6 +114,6 @@ message DeviceState {
 }
 
 message TransactionWithData {
-    Transaction Transaction   = 1;
+    Payment Transaction   = 1;
     Receipt Receipt           = 2;
 }
