@@ -513,47 +513,6 @@ func (txWithData *TransactionWithData) MarshalBinary() ([]byte, error) {
 	}
 
 	tx := msg.(*pb.Transaction)
-	//tx := msg.(*pb.Payment)
-
-	//switch meta {
-	//case core.CORE_TRANSACTION:
-	//	tx := msg.(*pb.Transaction)
-	//
-	//	td := &pb.TransactionWithData{
-	//		Transaction: tx,
-	//		Receipt:     receipt,
-	//	}
-	//	data, err := core.Marshal(td)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	return data, nil
-	//case core.CORE_PAYMENT:
-	//	payment := msg.(*pb.Payment)
-	//	td := &pb.TransactionWithData{
-	//		Payment: payment,
-	//		Receipt: receipt,
-	//	}
-	//	data, err := core.Marshal(td)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	return data, nil
-	//case core.CORE_NEWDEVICE:
-	//	newDevice := msg.(*pb.NewDevice)
-	//	td := &pb.TransactionWithData{
-	//		NewDevice: newDevice,
-	//		Receipt:   receipt,
-	//	}
-	//	data, err := core.Marshal(td)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	return data, nil
-	//default:
-	//	err := errors.New("error TransactionWithData meta")
-	//	return nil, err
-	//}
 
 	td := &pb.TransactionWithData{
 		Transaction: tx,
