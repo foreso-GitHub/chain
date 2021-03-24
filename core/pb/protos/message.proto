@@ -10,7 +10,7 @@ message Block {
     bytes StateHash       = 4;
     int64 Timestamp         = 5;
 
-    repeated TransactionWithData    Transactions    = 6;
+    repeated bytes    Transactions    = 6;
     repeated bytes            States                = 7;
 }
 
@@ -116,6 +116,14 @@ message DeviceState {
 message TransactionWithData {
     Transaction Transaction   = 1;
     Receipt Receipt           = 2;
-    Payment Payment           = 3;
-    NewDevice NewDevice       = 4;
+}
+
+message PaymentWithData {
+    Payment Transaction       = 1;
+    Receipt Receipt           = 2;
+}
+
+message NewDeviceWithData {
+    NewDevice Transaction     = 1;
+    Receipt Receipt           = 2;
 }

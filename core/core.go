@@ -16,6 +16,8 @@ const (
 	CORE_TRANSACTION_WITH_DATA = byte(103)
 	CORE_PAYMENT               = byte(104)
 	CORE_NEWDEVICE             = byte(105)
+	CORE_PAYMENT_WITH_DATA     = byte(106)
+	CORE_NEWDEVICE_WITH_DATA   = byte(107)
 
 	// CORE_STATE         = byte(110)
 	CORE_ACCOUNT_STATE  = byte(111)
@@ -43,6 +45,10 @@ func GetInfo(data []byte) string {
 			return "receipt"
 		case CORE_TRANSACTION_WITH_DATA:
 			return "transaction_with_data"
+		case CORE_PAYMENT_WITH_DATA:
+			return "payment_with_data"
+		case CORE_NEWDEVICE_WITH_DATA:
+			return "newdevice_with_data"
 
 		case CORE_ACCOUNT_STATE:
 			return "account_state"
@@ -92,6 +98,10 @@ func Marshal(message proto.Message) ([]byte, error) {
 		meta = CORE_RECEIPT
 	case *pb.TransactionWithData:
 		meta = CORE_TRANSACTION_WITH_DATA
+	case *pb.PaymentWithData:
+		meta = CORE_PAYMENT_WITH_DATA
+	case *pb.NewDeviceWithData:
+		meta = CORE_NEWDEVICE_WITH_DATA
 
 	case *pb.AccountState:
 		meta = CORE_ACCOUNT_STATE
@@ -129,6 +139,10 @@ func Unmarshal(data []byte) (byte, proto.Message, error) {
 		msg = &pb.Receipt{}
 	case CORE_TRANSACTION_WITH_DATA:
 		msg = &pb.TransactionWithData{}
+	case CORE_PAYMENT_WITH_DATA:
+		msg = &pb.PaymentWithData{}
+	case CORE_NEWDEVICE_WITH_DATA:
+		msg = &pb.NewDeviceWithData{}
 
 	case CORE_ACCOUNT_STATE:
 		msg = &pb.AccountState{}

@@ -219,8 +219,9 @@ func (service *MerkleService) GetTransaction(h libcore.Hash) (libblock.Transacti
 	if err != nil {
 		return nil, err
 	}
-	txWithData := &block.TransactionWithData{}
-	err = txWithData.UnmarshalBinary(data)
+	//txWithData := &block.TransactionWithData{}
+	//err = txWithData.UnmarshalBinary(data)
+	txWithData, err := block.ReadTxWithData(data)
 	if err != nil {
 		return nil, err
 	}

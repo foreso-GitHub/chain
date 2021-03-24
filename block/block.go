@@ -55,13 +55,14 @@ func (b *Block) UnmarshalBinary(data []byte) error {
 	l := len(block.Transactions)
 	transactions := make([]libblock.TransactionWithData, l)
 	for i := 0; i < l; i++ {
-		data, err := core.Marshal(block.Transactions[i])
+		//data, err := core.Marshal(block.Transactions[i])
+		data := block.Transactions[i]
 		if err != nil {
 			log.Println(err)
 			return err
 		}
-		tx := &TransactionWithData{}
-		err = tx.UnmarshalBinary(data)
+		//tx := &TransactionWithData{}
+		tx, err := ReadTxWithData(data)
 		if err != nil {
 			log.Println(err)
 			return err
@@ -95,19 +96,43 @@ func (b *Block) MarshalBinary() ([]byte, error) {
 		Timestamp:       b.Timestamp,
 	}
 
+	//l := len(b.Transactions)
+	//transactions := make([]*pb.TransactionWithData, l)
+	//for i := 0; i < l; i++ {
+	//	tx := b.Transactions[i]
+	//	data, err := tx.MarshalBinary()
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	//_, msg, err := core.Unmarshal(data)
+	//	meta, msg, err := core.Unmarshal(data)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	//transactions[i] = msg.(*pb.TransactionWithData)
+	//	switch meta {
+	//	case core.CORE_TRANSACTION_WITH_DATA:
+	//		transactions[i] = msg.(*pb.TransactionWithData)
+	//	case core.CORE_PAYMENT_WITH_DATA:
+	//		transactions[i] = msg.(*pb.PaymentWithData)
+	//	case core.CORE_NEWDEVICE_WITH_DATA:
+	//		transactions[i] = msg.(*pb.NewDeviceWithData)
+	//	default:
+	//		err := errors.New("error read txWithData")
+	//		return nil, err
+	//	}
+	//}
+	//block.Transactions = transactions
+
 	l := len(b.Transactions)
-	transactions := make([]*pb.TransactionWithData, l)
+	transactions := make([][]byte, l)
 	for i := 0; i < l; i++ {
 		tx := b.Transactions[i]
 		data, err := tx.MarshalBinary()
 		if err != nil {
 			return nil, err
 		}
-		_, msg, err := core.Unmarshal(data)
-		if err != nil {
-			return nil, err
-		}
-		transactions[i] = msg.(*pb.TransactionWithData)
+		transactions[i] = data
 	}
 	block.Transactions = transactions
 
@@ -135,19 +160,31 @@ func (b *Block) Raw(ignoreSigningFields bool) ([]byte, error) {
 		Timestamp:       b.Timestamp,
 	}
 
+	//l := len(b.Transactions)
+	//transactions := make([]*pb.TransactionWithData, l)
+	//for i := 0; i < l; i++ {
+	//	tx := b.Transactions[i]
+	//	data, err := tx.Raw(ignoreSigningFields)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	_, msg, err := core.Unmarshal(data)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	transactions[i] = msg.(*pb.TransactionWithData)
+	//}
+	//block.Transactions = transactions
+
 	l := len(b.Transactions)
-	transactions := make([]*pb.TransactionWithData, l)
+	transactions := make([][]byte, l)
 	for i := 0; i < l; i++ {
 		tx := b.Transactions[i]
-		data, err := tx.Raw(ignoreSigningFields)
+		data, err := tx.MarshalBinary()
 		if err != nil {
 			return nil, err
 		}
-		_, msg, err := core.Unmarshal(data)
-		if err != nil {
-			return nil, err
-		}
-		transactions[i] = msg.(*pb.TransactionWithData)
+		transactions[i] = data
 	}
 	block.Transactions = transactions
 
